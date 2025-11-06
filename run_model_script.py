@@ -5,7 +5,7 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, choices=["MOSE", "DAVIS"], required=True,
+    parser.add_argument("--dataset", type=str, choices=["MOSE", "DAVIS", "SeCVOS"], required=True,
                         help="Dataset to run inference on (MOSE or DAVIS)")
     
     parser.add_argument("--sam2_model", type=str, choices=["base_plus", "large"], required=True,
@@ -29,7 +29,10 @@ def get_dataset_paths(dataset):
         base_video_dir = "././DAVIS/JPEGImages/480p"
         input_mask_dir = "././DAVIS/Annotations/480p"
         video_list_file = "././DAVIS/ImageSets/2017/val.txt"
-
+    elif dataset == "SeCVOS":
+        base_video_dir = "././SeCVOS/JPEGImages/480p"
+        input_mask_dir = "././SeCVOS/Annotations/480p"
+        video_list_file = "././SeCVOS/ImageSets/2017/val.txt"
     else:
         raise ValueError(f"Unknown dataset: {dataset}")
     return base_video_dir, input_mask_dir, video_list_file
@@ -93,6 +96,8 @@ def main():
             "--input_mask_dir", input_mask_dir,
             "--video_list_file", split_txt,
             "--output_mask_dir", output_mask_dir,
+            "--per_obj_png_file",
+            "--track_object_appearing_later_in_video",
             "--sam2_memsize", str(args.sam2_memsize)
         ] + args.extra_flags
 
