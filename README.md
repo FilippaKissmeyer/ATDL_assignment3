@@ -21,11 +21,17 @@ conda init
 
 conda update conda
 
-conda create --name sam2 python=3.10
+conda create --name ass3 python=3.10
 
-conda activate sam2
+conda activate ass3
 ```
+---
 
+## Clone git
+Clone our code from github:
+```bash
+git clone https://github.com/FilippaKissmeyer/ATDL_assignment3.git
+```
 ---
 
 ## SAM2 setup
@@ -35,24 +41,14 @@ Installing SAM2 and required packages from [https://github.com/facebookresearch/
 ```bash
 pip3 install torch torchvision
 
-mkdir ATDL
-
-cd ATDL
+cd ATDL_assignment3
 
 git clone https://github.com/facebookresearch/sam2.git && cd sam2
 
 pip install -e .
 ```
 
-We then need to download the right checkpoints.  
-To compare with the model in the paper, we need to change the checkpoints to be from SAM2, and not SAM2.1, which is done by editing the file:
-
-```text
-/work/ATDL/sam2/checkpoints/download_ckpts.sh
-```
-
-In this file, remove the comments from the SAM2 checkpoints, and comment out the SAM2.1 checkpoints.  
-Now we download the checkpoints:
+Now we download the pretrained model checkpoints:
 
 ```bash
 cd checkpoints && \
@@ -70,87 +66,64 @@ We now download and unzip the DAVIS Semi-supervised dataset in 480p (used for me
 
 ```bash
 cd ..
-wget https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-480p.zip
 
-unzip DAVIS-2017-trainval-480p.zip
+git clone https://huggingface.co/datasets/OpenIXCLab/SeCVOS
 
-rm DAVIS-2017-trainval-480p.zip
+cd SeCVOS
+
+sudo apt install git-lfs
+git lfs install
+git lfs pull
+
+unzip Annotations.zip
+rm Annotations.zip
+
+unzip JPEGImages.zip
+rm JPEGImages.zip
+
+cd ..
 ```
 
 ---
 
 ## Running Inference
 
-To change the memory when running the script, modify `vos_inference.py`. After line 380, add:
-
-```python
-parser.add_argument(
-    "--sam2_memsize",
-    type=int,
-    default=7,
-    help="Memory size of SAM2 model (overrides config value)"
-)
-```
-
-And after the predictor is defined in line 456, add:
-```python
-predictor.num_maskmem = args.sam2_memsize
-```
-
 We are now ready to perform Semi-supervised VOS inference.  
-The script allows switching between DATASETS (DAVIS vs MOSE), SAM2 models (base_plus vs large), and the amount of frames stored in memory (num_maskmem = 0..7).  
+The script allows switching between DATASETS (DAVIS, MOSE or SeCVOS), SAM2 models (base_plus vs large)
 
 This script also dynamically runs on multiple GPUs by checking available GPUs and splitting videos evenly between them (for larger datasets, splitting by size may be optimal).
 
-To run inference on the DAVIS dataset using the `base_plus` model with memory size 7:
+To run inference on the DAVIS dataset using the `base_plus` model:
 
 ```bash
-python run_model_script.py --dataset DAVIS --sam2_model base_plus --sam2_memsize 7
+python run_model_script.py --dataset SeCVOS --sam2_model base_plus
 ```
 
 ---
 
 ## Evaluation
 
-Evaluation follows: [https://github.com/davisvideochallenge/davis2017-evaluation](https://github.com/davisvideochallenge/davis2017-evaluation)  
+Evaluation follows: [https://github.com/OpenIXCLab/SeC/blob/main/vos_evaluation/EVALUATE.md](https://github.com/OpenIXCLab/SeC/blob/main/vos_evaluation/EVALUATE.md)  
 
 Download and install their code:
 
 ```bash
-git clone https://github.com/davisvideochallenge/davis2017-evaluation.git && cd davis2017-evaluation
-
-python setup.py install
-
-pip install pandas
-
 pip install opencv-python-headless
-
-pip install scipy
-
-pip install scikit-learn
-
-pip install scikit-image
-
-cd ..
+conda install scikit-image
 ```
 
 Run evaluation on generated masks:
-
 ```bash
-python davis2017-evaluation/evaluation_method.py \
-    --task semi-supervised \
-    --davis_path ./DAVIS \
-    --results_path outputs/DAVIS_pred_pngs/DAVIS_sam2_hiera_base_plus_memsize7
+python SeCVOS_eval/sav_evaluator.py \
+    --gt_root SeCVOS/Annotations \
+    --pred_root outputs/SeCVOS_pred_pngs/SeCVOS_sam2.1_hiera_base_plus \
+    --strict 
 ```
 
-Running time for `base_plus` on DAVIS, memsize=7: 41s, using 8 GPUs (CPU only).  
-Results:
+Global score: J&F: 57.2 J: 57.0 F: 57.4
 
-```text
-J&F-Mean   J-Mean  J-Recall  J-Decay   F-Mean  F-Recall  F-Decay
-0.885856 0.854672  0.921446 0.050835 0.917041  0.967444 0.072987
-```
 
+---
 To plot inference times and J&F-means for DAVIS:
 
 ```bash

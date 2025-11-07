@@ -11,8 +11,6 @@ def parse_args():
     parser.add_argument("--sam2_model", type=str, choices=["base_plus", "large"], required=True,
                         help="Sam2 model to run inference on (base_plus or large)")
     
-    parser.add_argument("--sam2_memsize", type=int, default=7, required=False,
-                        help="Sam2 memory size (int)")
     
     parser.add_argument("--extra_flags", nargs="*", default=[],
                         help="Additional flags to pass to vos_inference.py, e.g. --use_all_masks")
@@ -30,21 +28,21 @@ def get_dataset_paths(dataset):
         input_mask_dir = "././DAVIS/Annotations/480p"
         video_list_file = "././DAVIS/ImageSets/2017/val.txt"
     elif dataset == "SeCVOS":
-        base_video_dir = "././SeCVOS/JPEGImages/480p"
-        input_mask_dir = "././SeCVOS/Annotations/480p"
-        video_list_file = "././SeCVOS/ImageSets/2017/val.txt"
+        base_video_dir = "././SeCVOS/JPEGImages/"
+        input_mask_dir = "././SeCVOS/Annotations/"
+        video_list_file = "././SeCVOS/ImageSets/val.txt"
     else:
         raise ValueError(f"Unknown dataset: {dataset}")
     return base_video_dir, input_mask_dir, video_list_file
 
 def get_sam_config_and_checkpoint(sam2_model):
     if sam2_model == "base_plus":
-        sam2_config = 'configs/sam2/sam2_hiera_b+.yaml'
-        sam2_checkpoint = 'sam2/checkpoints/sam2_hiera_base_plus.pt'
+        sam2_config = 'configs/sam2.1/sam2.1_hiera_b+.yaml'
+        sam2_checkpoint = 'sam2/checkpoints/sam2.1_hiera_base_plus.pt'
 
     elif sam2_model == "large":
-        sam2_config = 'configs/sam2/sam2_hiera_l.yaml'
-        sam2_checkpoint = 'sam2/checkpoints/sam2_hiera_large.pt'
+        sam2_config = 'configs/sam2/sam2.1_hiera_l.yaml'
+        sam2_checkpoint = 'sam2/checkpoints/sam2.1_hiera_large.pt'
 
     else:
         raise ValueError(f"Unknown SAM2 model: {sam2_model}")
@@ -58,7 +56,7 @@ def main():
 
     # Generate output folder based on dataset and checkpoint filename and memory size.
     checkpoint_name = os.path.splitext(os.path.basename(sam2_checkpoint))[0]
-    output_mask_dir = os.path.join("./outputs", f"{args.dataset}_pred_pngs", f"{args.dataset}_{checkpoint_name}_memsize{args.sam2_memsize}")
+    output_mask_dir = os.path.join("./outputs", f"{args.dataset}_pred_pngs", f"{args.dataset}_{checkpoint_name}")
     os.makedirs(output_mask_dir, exist_ok=True)
 
     # Detect GPUs
@@ -98,7 +96,6 @@ def main():
             "--output_mask_dir", output_mask_dir,
             "--per_obj_png_file",
             "--track_object_appearing_later_in_video",
-            "--sam2_memsize", str(args.sam2_memsize)
         ] + args.extra_flags
 
         env = os.environ.copy()
