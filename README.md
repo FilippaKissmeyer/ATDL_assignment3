@@ -58,11 +58,9 @@ cd ..
 
 ---
 
-## DAVIS and MOSE dataset setup
+## SeCVOS dataset setup
 
-### DAVIS
-
-We now download and unzip the DAVIS Semi-supervised dataset in 480p (used for metrics on the website for DAVIS dataset). SAM2 paper references that they follow official evaluation tools.
+We now download and unzip the SeCVOS Semi-supervised dataset
 
 ```bash
 cd ..
