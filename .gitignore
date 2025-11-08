@@ -29,4 +29,6 @@ Thumbs.db
 # Ignore temporary files from editors
 *.swp
 *.swo
- 
+
+# Ignore temp files starting with 'temp_' and ending with '.txt'
+temp_*.txt

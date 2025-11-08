@@ -23,7 +23,7 @@ run_and_time() {
   # Record start time
   start=$(date +%s.%N)
 
-  # python run_model_script.py --dataset "$dataset" --sam2_model "$model" --sam2_memstride "$memstride"
+  python run_model_script.py --dataset "$dataset" --sam2_model "$model" --sam2_memstride "$memstride"
 
   # Record end time
   end=$(date +%s.%N)
