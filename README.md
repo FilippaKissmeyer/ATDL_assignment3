@@ -86,6 +86,11 @@ rm JPEGImages.zip
 cd ..
 ```
 
+To restructure the dataset to fit with requirements from SAM2:
+
+```bash
+convert_SecVOS_json_to_text.py     
+```
 ---
 
 ## Running Inference
