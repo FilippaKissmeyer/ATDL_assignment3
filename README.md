@@ -132,3 +132,31 @@ python SeCVOS_eval/sav_evaluator.py \
 ```
 
 Global score: J&F: 57.2 J: 57.0 F: 57.4
+
+
+---
+
+## Finetune on DAVIS dataset:
+
+We use guide from here:
+https://github.com/facebookresearch/sam2/blob/main/training/README.md
+
+install required packages:
+```bash
+cd sam2
+pip install -e ".[dev]"
+cd ..
+```
+
+Downloading DAVIS dataset:
+```bash
+cd ..
+wget https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-Full-Resolution.zip
+
+unzip DAVIS-2017-trainval-Full-Resolution.zip
+
+rm DAVIS-2017-trainval-Full-Resolution.zip
+```
+
+We edit the paths for the DAVIS dataset in 
+configs/sam2.1_training/sam2.1_hiera_b+_MOSE_finetune.yaml

@@ -55,7 +55,7 @@ for dataset in SeCVOS; do
   
   # for model in base_plus large; do
   for model in base_plus; do
-    for memstride in {9..10}; do
+    for memstride in {1..10}; do
       run_and_time "$dataset" "$model" "$memstride"
     done
   done
