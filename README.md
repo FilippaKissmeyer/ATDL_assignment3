@@ -94,7 +94,7 @@ This script also dynamically runs on multiple GPUs by checking available GPUs an
 To run inference on the DAVIS dataset using the `base_plus` model:
 
 ```bash
-python run_model_script.py --dataset SeCVOS --sam2_model base_plus
+python run_model_script.py --dataset SeCVOS --sam2_model base_plus --sam2_memory_stride 2
 ```
 
 ---
