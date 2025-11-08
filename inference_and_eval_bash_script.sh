@@ -23,7 +23,7 @@ run_and_time() {
   # Record start time
   start=$(date +%s.%N)
 
-  python run_model_script.py --dataset "$dataset" --sam2_model "$model" --sam2_memstride "$memstride"
+  # python run_model_script.py --dataset "$dataset" --sam2_model "$model" --sam2_memstride "$memstride"
 
   # Record end time
   end=$(date +%s.%N)
@@ -38,7 +38,7 @@ run_and_time() {
 
   python SeCVOS_eval/sav_evaluator.py \
     --gt_root "./$dataset/Annotations" \
-    --pred_root "outputs/${dataset}_pred_pngs/${dataset}_sam2.1_hiera_${model}_memstride${memstride}"
+    --pred_root "outputs/${dataset}_pred_pngs/${dataset}_sam2.1_hiera_${model}_memstride${memstride}" \
     --strict 
 
   # Append timing + GPU info to CSV
