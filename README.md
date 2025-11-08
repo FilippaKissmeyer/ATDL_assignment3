@@ -24,6 +24,9 @@ conda update conda
 conda create --name ass3 python=3.10
 
 conda activate ass3
+
+conda install -c conda-forge bc
+
 ```
 ---
 
