@@ -465,7 +465,7 @@ def main():
 
     #Added by Oskar
     #Changes the memory stride:
-    predictor.memory_temportal_stride_for_eval = args.sam2_memstride
+    predictor.memory_temporal_stride_for_eval = args.sam2_memstride
 
 
     if args.use_all_masks:

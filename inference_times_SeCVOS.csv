@@ -1,2 +1,0 @@
-Dataset,Model,memstride,NumGPUs,GPU_Names,InferenceTime_s
-SeCVOS,base_plus,1,4,"NVIDIA L4,NVIDIA L4,NVIDIA L4,NVIDIA L4",.003884148

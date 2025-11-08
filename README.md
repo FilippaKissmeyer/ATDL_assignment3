@@ -27,6 +27,10 @@ conda activate ass3
 
 conda install -c conda-forge bc
 
+conda install pandas
+
+conda install matplotlib
+
 ```
 ---
 
