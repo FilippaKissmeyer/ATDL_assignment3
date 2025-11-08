@@ -12,7 +12,7 @@ csv_path = sys.argv[1]
 df = pd.read_csv(csv_path)
 
 # Check required columns
-required_cols = {"Dataset", "Model", "memstride", "NumGPUs", "GPU_Names", "InferenceTime_s"}
+required_cols = {"Dataset", "Model", "MemStride", "NumGPUs", "GPU_Names", "InferenceTime_s"}
 if not required_cols.issubset(df.columns):
     raise ValueError(f"CSV must contain columns: {required_cols}")
 
@@ -34,8 +34,8 @@ plt.figure(figsize=(9, 6))
 
 # Plot lines per model
 for model_name, subdf in df.groupby("Model"):
-    subdf = subdf.sort_values("memstride")
-    plt.plot(subdf["memstride"], subdf["InferenceTime_s"], marker="o", linewidth=2, label=model_name)
+    subdf = subdf.sort_values("MemStride")
+    plt.plot(subdf["MemStride"], subdf["InferenceTime_s"], marker="o", linewidth=2, label=model_name)
 
 # Title with GPU info below
 plt.suptitle(f"{dataset_name} Inference Time vs Memory Stride")

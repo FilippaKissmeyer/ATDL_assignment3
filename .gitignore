@@ -32,3 +32,7 @@ Thumbs.db
 
 # Ignore temp files starting with 'temp_' and ending with '.txt'
 temp_*.txt
+
+# Ignore images and csv files
+*.csv
+*.png
