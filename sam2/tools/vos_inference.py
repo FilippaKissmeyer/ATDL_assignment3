@@ -443,7 +443,7 @@ def main():
     #Added by Oskar
     #Allows us to send argument from args with memory stride.
     parser.add_argument(
-        "--sam2_memory_stride",
+        "--sam2_memstride",
         type=int,
         default=1,
         help="Memory size of SAM2 model (overrides config value)"
@@ -465,7 +465,7 @@ def main():
 
     #Added by Oskar
     #Changes the memory stride:
-    predictor.memory_temportal_stride_for_eval = args.sam2_memory_stride
+    predictor.memory_temportal_stride_for_eval = args.sam2_memstride
 
 
     if args.use_all_masks:

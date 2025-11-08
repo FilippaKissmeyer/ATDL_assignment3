@@ -35,15 +35,16 @@ git clone https://github.com/FilippaKissmeyer/ATDL_assignment3.git
 ---
 
 ## SAM2 setup
-
-Installing SAM2 and required packages from [https://github.com/facebookresearch/sam2](https://github.com/facebookresearch/sam2):
+We use code from Sam2: [https://github.com/facebookresearch/sam2](https://github.com/facebookresearch/sam2)
+with slight modifications.
+We install required packages:
 
 ```bash
 pip3 install torch torchvision
 
 cd ATDL_assignment3
 
-git clone https://github.com/facebookresearch/sam2.git && cd sam2
+cd sam2
 
 pip install -e .
 ```
@@ -94,7 +95,7 @@ This script also dynamically runs on multiple GPUs by checking available GPUs an
 To run inference on the DAVIS dataset using the `base_plus` model:
 
 ```bash
-python run_model_script.py --dataset SeCVOS --sam2_model base_plus --sam2_memory_stride 2
+python run_model_script.py --dataset SeCVOS --sam2_model base_plus --sam2_memstride 2
 ```
 
 ---

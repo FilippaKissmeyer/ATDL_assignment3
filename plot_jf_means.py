@@ -23,7 +23,7 @@ results = {}
 for model in models:
     jf_means = []
     for mem in memsizes:
-        result_dir = f"{base_path}/{dataset}_sam2_hiera_{model}_memsize{mem}"
+        result_dir = f"{base_path}/{dataset}_sam2.1_hiera_{model}_memsize{mem}"
         csv_path = os.path.join(result_dir, "global_results-val.csv")
 
         if not os.path.exists(csv_path):
