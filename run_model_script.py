@@ -15,6 +15,10 @@ def parse_args():
     parser.add_argument("--extra_flags", nargs="*", default=[],
                         help="Additional flags to pass to vos_inference.py, e.g. --use_all_masks")
     
+    # New argument to control memory stride
+    parser.add_argument('--sam2_memory_stride',type=int, default=1,
+                        help='Memory temporal stride for evaluation')
+
     return parser.parse_args()
 
 def get_dataset_paths(dataset):
@@ -96,6 +100,7 @@ def main():
             "--output_mask_dir", output_mask_dir,
             "--per_obj_png_file",
             "--track_object_appearing_later_in_video",
+            "--sam2_memory_stride", str(args.sam2_memory_stride)
         ] + args.extra_flags
 
         env = os.environ.copy()
