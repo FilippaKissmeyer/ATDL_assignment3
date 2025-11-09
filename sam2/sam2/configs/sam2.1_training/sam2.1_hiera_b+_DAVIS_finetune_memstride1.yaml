@@ -197,6 +197,8 @@ trainer:
     
     num_init_cond_frames_for_eval: 1  # only mask on the first frame
     forward_backbone_per_frame_for_eval: True
+    #Added by Oskar
+    memory_temporal_stride_for_eval: 1 #Allow us to change how many frames are skipped during finetuning
     
 
   data:

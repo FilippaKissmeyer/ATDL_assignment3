@@ -133,7 +133,6 @@ python SeCVOS_eval/sav_evaluator.py \
 
 Global score: J&F: 57.2 J: 57.0 F: 57.4
 
-
 ---
 
 ## Finetune on DAVIS dataset:
@@ -150,7 +149,6 @@ cd ..
 
 Downloading DAVIS dataset:
 ```bash
-cd ..
 wget https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-Full-Resolution.zip
 
 unzip DAVIS-2017-trainval-Full-Resolution.zip
@@ -158,5 +156,11 @@ unzip DAVIS-2017-trainval-Full-Resolution.zip
 rm DAVIS-2017-trainval-Full-Resolution.zip
 ```
 
-We edit the paths for the DAVIS dataset in 
+We edit the paths for the DAVIS dataset,
+and edit num_frames from 8 to 6 (runs out of GPU memory if not changed) in:
 configs/sam2.1_training/sam2.1_hiera_b+_MOSE_finetune.yaml
+
+We can then run our finetuning script with memstride 1,2,6:
+```bash
+bash finetune_davis.sh
+```
