@@ -96,6 +96,33 @@ To restructure the dataset to fit with requirements from SAM2:
 convert_SecVOS_json_to_text.py     
 ```
 ---
+---
+
+## MOSEv2 dataset setup
+
+We now download and unzip the MOSEv2 Semi-supervised dataset
+
+```bash
+
+mkdir MOSEv2
+
+cd MOSEv2
+
+wget https://huggingface.co/datasets/FudanCVL/MOSEv2/resolve/main/valid.tar.gz
+
+wget https://huggingface.co/datasets/FudanCVL/MOSEv2/resolve/main/meta_valid.json
+
+tar -xvzf valid.tar.gz
+
+cd ..
+```
+
+To restructure the dataset to fit with requirements from SAM2:
+
+```bash
+convert_MOSE_json_to_text.py     
+```
+---
 
 ## Running Inference
 
@@ -112,7 +139,7 @@ python run_model_script.py --dataset SeCVOS --sam2_model base_plus --sam2_memstr
 
 ---
 
-## Evaluation
+## SeCVOS Evaluation
 
 Evaluation follows: [https://github.com/OpenIXCLab/SeC/blob/main/vos_evaluation/EVALUATE.md](https://github.com/OpenIXCLab/SeC/blob/main/vos_evaluation/EVALUATE.md)  
 
@@ -132,6 +159,29 @@ python SeCVOS_eval/sav_evaluator.py \
 ```
 
 Global score: J&F: 57.2 J: 57.0 F: 57.4
+
+---
+## MOSEv2 Evaluation
+
+```bash
+cd outputs/MOSEv2_pred_pngs
+bash zip_to_MOSEv2_submission.sh
+```
+
+The file paths within zip_to_MOSEv2_submission.sh should be either
+```bash
+cd "MOSEv2_sam2.1_hiera_base_plus_memstride${memstride}"
+zip -r "MOSEv2_sam2.1_hiera_base_plus_memstride${memstride}.zip" */
+cd ..
+```
+or
+```bash
+cd "MOSEv2_finetuned${memstride}_memstride${memstride}"
+zip -r "finetuned_sam2.1_memstride${memstride}.zip" */
+cd ..
+```
+Each zip file should be uploaded to [https://www.codabench.org/competitions/10062/#/participate-tab](https://www.codabench.org/competitions/10062/#/participate-tab).
+The scores can be downloaded by clicking on a submission then Output from scoring step. This downloads a zip file containing a metrics.json file where the average should be taken on those entries where J&F are non-zero.
 
 ---
 
