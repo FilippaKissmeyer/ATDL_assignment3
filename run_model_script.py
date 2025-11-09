@@ -5,12 +5,14 @@ import argparse
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", type=str, choices=["MOSE", "DAVIS", "SeCVOS"], required=True,
-                        help="Dataset to run inference on (MOSE or DAVIS)")
+    parser.add_argument("--dataset", type=str, choices=["MOSEv2", "SeCVOS"], required=True,
+                        help="Dataset to run inference on (MOSEv2 or SeCVOS)")
     
-    parser.add_argument("--sam2_model", type=str, choices=["base_plus", "large"], required=True,
-                        help="Sam2 model to run inference on (base_plus or large)")
-    
+    parser.add_argument(
+        '--sam2_model',
+        choices=['base_plus', 'large'] + [f'finetuned{i}' for i in range(1, 11)],
+        required=True,
+    )
     
     parser.add_argument("--extra_flags", nargs="*", default=[],
                         help="Additional flags to pass to vos_inference.py, e.g. --use_all_masks")
@@ -22,15 +24,11 @@ def parse_args():
     return parser.parse_args()
 
 def get_dataset_paths(dataset):
-    if dataset == "MOSE":
-        base_video_dir = "././MOSE/JPEGImages/480p"
-        input_mask_dir = "././MOSE/Annotations/480p"
-        video_list_file = "././MOSE/ImageSets/2017/val.txt"
+    if dataset == "MOSEv2":
+        base_video_dir = "././MOSEv2/valid/JPEGImages"
+        input_mask_dir = "././MOSEv2/valid/Annotations"
+        video_list_file = "././MOSEv2/ImageSets/val.txt"
 
-    elif dataset == "DAVIS":
-        base_video_dir = "././DAVIS/JPEGImages/480p"
-        input_mask_dir = "././DAVIS/Annotations/480p"
-        video_list_file = "././DAVIS/ImageSets/2017/val.txt"
     elif dataset == "SeCVOS":
         base_video_dir = "././SeCVOS/JPEGImages/"
         input_mask_dir = "././SeCVOS/Annotations/"
@@ -45,12 +43,56 @@ def get_sam_config_and_checkpoint(sam2_model):
         sam2_checkpoint = 'sam2/checkpoints/sam2.1_hiera_base_plus.pt'
 
     elif sam2_model == "large":
-        sam2_config = 'configs/sam2/sam2.1_hiera_l.yaml'
+        sam2_config = 'configs/sam2.1/sam2.1_hiera_l.yaml'
         sam2_checkpoint = 'sam2/checkpoints/sam2.1_hiera_large.pt'
+
+    elif sam2_model.startswith("finetuned"):
+        model_num = int(sam2_model.replace("finetuned", ""))
+        sam2_config = 'configs/sam2.1/sam2.1_hiera_b+.yaml'
+        sam2_checkpoint = f'sam2_logs/configs/sam2.1_training/sam2.1_hiera_b+_DAVIS_finetune_memstride{model_num}/checkpoints/checkpoint.pt'
+
 
     else:
         raise ValueError(f"Unknown SAM2 model: {sam2_model}")
     return sam2_config, sam2_checkpoint
+
+
+#Helper functions for splitting videos evenly between GPUs based on video size (Generated with chatgpt)
+def count_frames(video_dir):
+    """Count number of .jpg frames in a given video folder."""
+    return len([f for f in os.listdir(video_dir) if f.lower().endswith(".jpg")])
+
+def distribute_videos_evenly(video_names, base_video_dir, num_gpus):
+    """Distribute videos across GPUs so each gets a similar total frame count."""
+    # Count frames for each video
+    video_frame_counts = []
+    for v in video_names:
+        v_dir = os.path.join(base_video_dir, v)
+        if not os.path.isdir(v_dir):
+            print(f"[WARNING] Video directory not found: {v_dir}")
+            continue
+        frame_count = count_frames(v_dir)
+        video_frame_counts.append((v, frame_count))
+
+    # Sort videos by frame count (largest first) for greedy balancing
+    video_frame_counts.sort(key=lambda x: x[1], reverse=True)
+
+    # Initialize GPU buckets
+    gpu_splits = [[] for _ in range(num_gpus)]
+    gpu_frame_sums = [0] * num_gpus
+
+    # Greedy assignment: always give next largest video to GPU with least total frames
+    for v, fcount in video_frame_counts:
+        min_gpu = gpu_frame_sums.index(min(gpu_frame_sums))
+        gpu_splits[min_gpu].append(v)
+        gpu_frame_sums[min_gpu] += fcount
+
+    print("[INFO] Frame distribution per GPU:")
+    for i, total in enumerate(gpu_frame_sums):
+        print(f"  GPU {i}: {total} frames, {len(gpu_splits[i])} videos")
+
+    return gpu_splits
+
 
 def main():
     args = parse_args()
@@ -72,10 +114,15 @@ def main():
     with open(video_list_file, "r") as f:
         video_names = [v.strip() for v in f.readlines()]
 
-    # Split video names across GPUs
-    split_video_lists = [[] for _ in range(num_gpus)]
-    for i, vid in enumerate(video_names):
-        split_video_lists[i % num_gpus].append(vid)
+    # Inserted by William
+    # Sample x% of videos
+    if args.dataset == "MOSEv2":
+        seed = random.Random(42)
+        video_names = seed.sample(video_names, k=len(video_names)//10)
+
+    # Split video names across GPUs based on total frame count
+    split_video_lists = distribute_videos_evenly(video_names, base_video_dir, num_gpus)
+
 
     # Save temporary split TXT files
     split_txt_files = []
@@ -98,11 +145,14 @@ def main():
             "--input_mask_dir", input_mask_dir,
             "--video_list_file", split_txt,
             "--output_mask_dir", output_mask_dir,
-            "--per_obj_png_file", #Maybe needs to be removed for MOSE.
             "--track_object_appearing_later_in_video", #Needed for SeCVOS (Maybe needs to be removed for MOSE)
             "--sam2_memstride", str(args.sam2_memstride)
         ] + args.extra_flags
 
+        # Only add --per_obj_png_file if dataset is not MOSEv2
+        if args.dataset == "SeCVOS":
+            cmd.insert(-2, "--per_obj_png_file")  # Insert before the last two flags
+        
         env = os.environ.copy()
         env["CUDA_VISIBLE_DEVICES"] = str(gpu_idx)
         print(f"[INFO] Launching inference on GPU {gpu_idx} with {len(split_video_lists[gpu_idx])} videos...")
