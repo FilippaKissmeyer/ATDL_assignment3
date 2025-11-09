@@ -101,8 +101,8 @@ def main():
     sam2_config, sam2_checkpoint = get_sam_config_and_checkpoint(args.sam2_model)
 
     # Generate output folder based on dataset and checkpoint filename and memory size.
-    checkpoint_name = os.path.splitext(os.path.basename(sam2_checkpoint))[0]
-    output_mask_dir = os.path.join("./outputs", f"{args.dataset}_pred_pngs", f"{args.dataset}_{checkpoint_name}_memstride{args.sam2_memstride}")
+    # checkpoint_name = os.path.splitext(os.path.basename(sam2_checkpoint))[0]
+    output_mask_dir = os.path.join("./outputs", f"{args.dataset}_pred_pngs", f"{args.dataset}_{args.sam2_model}_memstride{args.sam2_memstride}")
     os.makedirs(output_mask_dir, exist_ok=True)
 
     # Detect GPUs

@@ -46,12 +46,9 @@ for dataset in SeCVOS; do
   OUTFILE="inference_times_${dataset}.csv"
   echo "Dataset,Model,MemStride,NumGPUs,GPU_Names,InferenceTime_s" > "$OUTFILE"
   
-  # for model in base_plus large; do
-  for model_num in {1..10}; do
+  for memstride in {1..10}; do
     model="finetuned${model_num}"
-    for memstride in {1..10}; do
-      run_and_time "$dataset" "$model" "$memstride"
-    done
+    run_and_time "$dataset" "$model" "$memstride"
   done
 
 done
