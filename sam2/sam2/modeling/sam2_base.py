@@ -538,7 +538,9 @@ class SAM2Base(torch.nn.Module):
             # the earliest one has t_pos=1 and the latest one has t_pos=self.num_maskmem-1
             # We also allow taking the memory frame non-consecutively (with stride>1), in which case
             # we take (self.num_maskmem - 2) frames among every stride-th frames plus the last frame.
-            stride = 1 if self.training else self.memory_temporal_stride_for_eval
+            
+            # stride = 1 if self.training else self.memory_temporal_stride_for_eval
+            stride = self.memory_temporal_stride_for_eval
             for t_pos in range(1, self.num_maskmem):
                 t_rel = self.num_maskmem - t_pos  # how many frames before current frame
                 if t_rel == 1:

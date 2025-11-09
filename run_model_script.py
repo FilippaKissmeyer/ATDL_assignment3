@@ -98,8 +98,8 @@ def main():
             "--input_mask_dir", input_mask_dir,
             "--video_list_file", split_txt,
             "--output_mask_dir", output_mask_dir,
-            "--per_obj_png_file",
-            "--track_object_appearing_later_in_video",
+            "--per_obj_png_file", #Maybe needs to be removed for MOSE.
+            "--track_object_appearing_later_in_video", #Needed for SeCVOS (Maybe needs to be removed for MOSE)
             "--sam2_memstride", str(args.sam2_memstride)
         ] + args.extra_flags
 
