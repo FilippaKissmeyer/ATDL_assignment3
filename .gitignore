@@ -9,6 +9,8 @@ outputs/
 # Ignore sam2_logs folder (Contains finetuned chekcpoints and such)
 sam2_logs/
 
+sam2_logs.zip
+
 # Ignore Python cache and virtual environment files
 __pycache__/
 *.pyc
